@@ -32,9 +32,7 @@ class PDFViewer:
         # gives title to the main window
         self.master.title('PDF Viewer')
         # gives dimensions to main window
-        #self.master.geometry('580x520+440+180')
-        # this disables the minimize/maximize button on the main window
-        #self.master.resizable(width=0, height=0)
+        self.master.geometry('1080x520')
         # creating the menu
         self.menu = Menu(self.master)
         # adding it to the main window
