@@ -1,4 +1,4 @@
-import fitz  # PyMuPDF
+import fitz
 from tkinter import *
 from tkinter import ttk
 from miner import PDFMiner
@@ -15,6 +15,13 @@ page = pdf_document[0]
 class PDFViewer:
     # initializing the __init__ / special method
     def __init__(self, master):
+        self.initialize_variables()
+        self.create_main_window(master)
+        self.create_menu()
+        self.create_frames()
+        self.create_widgets()
+
+    def initialize_variables(self):
         # path for the pdf doc
         self.path = None
         # state of the pdf doc, open or closed
@@ -27,12 +34,16 @@ class PDFViewer:
         self.current_page = 0
         # total number of pages for the pdf doc
         self.numPages = None
+
+    def create_main_window(self, master):
         # creating the window
         self.master = master
         # gives title to the main window
         self.master.title('PDF Viewer')
         # gives dimensions to main window
         self.master.geometry('1080x520')
+
+    def create_menu(self):
         # creating the menu
         self.menu = Menu(self.master)
         # adding it to the main window
@@ -44,30 +55,59 @@ class PDFViewer:
         # adding two buttons to the sub menus
         self.filemenu.add_command(label="Open File", command=self.open_file)
         self.filemenu.add_command(label="Exit", command=self.master.destroy)
+
+    def create_frames(self):
+        self.create_top_frames()
+        self.create_bottom_frames()
+
+    def create_top_frames(self):
         # creating the top frame
         self.top_frame = ttk.Frame(self.master)
         # placing the frame using inside main window using grid()
         self.top_frame.grid(row=0, column=0, sticky=(N, S, E, W))
         # the frame will not propagate
         self.top_frame.grid_propagate(False)
+
+    def create_bottom_frames(self):
         # creating the bottom frame
         self.bottom_frame = ttk.Frame(self.master, width=580, height=50)
         # placing the frame using inside main window using grid()
         self.bottom_frame.grid(row=1, column=0)
         # the frame will not propagate
         self.bottom_frame.grid_propagate(False)
+
+    def create_widgets(self):
+        self.create_canvas()
+        self.create_text_widget()
+        self.create_context_menu()
+        self.create_scrollbars()
+        self.create_buttons()
+        self.create_page_label()
+
+        # inserting both vertical and horizontal scrollbars to the canvas
+        self.output.configure(yscrollcommand=self.scrolly.set, xscrollcommand=self.scrollx.set)
+        # binding the resize function to the window resize event
+        self.master.bind('<Configure>', self.resize)
+
+    def create_canvas(self):
         # creating the canvas for display the PDF pages
         self.output = Canvas(self.top_frame, bg='#ECE8F3', width=560, height=435)
         # adding the canvas
         self.output.grid(row=0, column=0, rowspan=2, padx=(0, 5), sticky=(N, S, E, W))
+
+    def create_text_widget(self):
         # creating a Text widget for displaying text content
         self.text_widget = Text(self.top_frame, wrap='none', bg='#ECE8F3', width=60, height=20)
         self.text_widget.grid(row=0, column=1, padx=5, pady=5, sticky=(N, S, E, W))
         # binding right-click event to show context menu
         self.text_widget.bind("<Button-3>", self.show_context_menu)
+
+    def create_context_menu(self):
         # creating a context menu
         self.context_menu = Menu(self.text_widget, tearoff=0)
         self.context_menu.add_command(label="Copy", command=self.copy_text)
+
+    def create_scrollbars(self):
         # creating a vertical scrollbar
         self.scrolly = Scrollbar(self.top_frame, orient=VERTICAL, command=self.output.yview)
         # adding the scrollbar
@@ -82,28 +122,39 @@ class PDFViewer:
         self.scrollx.configure(command=self.output.xview)
         # configuring the vertical scrollbar to the canvas
         self.scrollx.configure(command=self.output.xview)
+
+    def create_buttons(self):
+        self.create_button_icons()
+        self.create_up_button()
+        self.create_down_button()
+
+    def create_button_icons(self):
         # loading the button icons
         self.uparrow_icon = PhotoImage(file='uparrow.png')
         self.downarrow_icon = PhotoImage(file='downarrow.png')
         # resizing the icons to fit on buttons
         self.uparrow = self.uparrow_icon.subsample(3, 3)
         self.downarrow = self.downarrow_icon.subsample(3, 3)
+
+    def create_up_button(self):
         # creating an up button with an icon
         self.upbutton = ttk.Button(self.bottom_frame, image=self.uparrow, command=self.previous_page)
         # adding the button
         self.upbutton.grid(row=0, column=1, padx=(270, 5), pady=8)
+
+    def create_down_button(self):
         # creating a down button with an icon
         self.downbutton = ttk.Button(self.bottom_frame, image=self.downarrow, command=self.next_page)
         # adding the button
         self.downbutton.grid(row=0, column=3, pady=8)
+
+    def create_page_label(self):
         # label for displaying page numbers
         self.page_label = ttk.Label(self.bottom_frame, text='page')
         # adding the label
         self.page_label.grid(row=0, column=4, padx=5)
-        # inserting both vertical and horizontal scrollbars to the canvas
-        self.output.configure(yscrollcommand=self.scrolly.set, xscrollcommand=self.scrollx.set)
-        # binding the resize function to the window resize event
-        master.bind('<Configure>', self.resize)
+
+#External commands
 
     def open_file(self):
         # open the file dialog
