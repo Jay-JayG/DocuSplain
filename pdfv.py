@@ -41,7 +41,7 @@ class PDFViewer:
         # gives title to the main window
         self.master.title('PDF Viewer')
         # gives dimensions to main window
-        self.master.geometry('1080x520')
+        self.master.geometry('2160x1080')
 
     def create_menu(self):
         # creating the menu
@@ -79,6 +79,7 @@ class PDFViewer:
     def create_widgets(self):
         self.create_canvas()
         self.create_text_widget()
+        self.create_output_widget()
         self.create_context_menu()
         self.create_scrollbars()
         self.create_buttons()
@@ -97,10 +98,15 @@ class PDFViewer:
 
     def create_text_widget(self):
         # creating a Text widget for displaying text content
-        self.text_widget = Text(self.top_frame, wrap='none', bg='#ECE8F3', width=60, height=20)
+        self.text_widget = Text(self.top_frame, wrap='none', bg='#ECE8F3', width=40, height=20)
         self.text_widget.grid(row=0, column=1, padx=5, pady=5, sticky=(N, S, E, W))
         # binding right-click event to show context menu
         self.text_widget.bind("<Button-3>", self.show_context_menu)
+        
+    def create_output_widget(self):
+    	#creating a Text widget for displaying the output text from the LLM
+    	self.text_widget = Text(self.top_frame, wrap='none', bg='#ECE8F3', width=40, height=20)
+    	self.text_widget.grid(row=0, column=2, padx=5, sticky=(N, S, E, W))
 
     def create_context_menu(self):
         # creating a context menu
@@ -111,7 +117,7 @@ class PDFViewer:
         # creating a vertical scrollbar
         self.scrolly = Scrollbar(self.top_frame, orient=VERTICAL, command=self.output.yview)
         # adding the scrollbar
-        self.scrolly.grid(row=0, column=2, sticky=(N, S))
+        self.scrolly.grid(row=0, column=0, sticky=(N, S, E))
         # creating a horizontal scrollbar
         self.scrollx = Scrollbar(self.top_frame, orient=HORIZONTAL, command=self.output.xview)
         # adding the scrollbar
