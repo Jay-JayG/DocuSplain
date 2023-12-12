@@ -1,9 +1,11 @@
 import fitz
+import tkinter as tk
 from tkinter import *
 from tkinter import ttk
 from miner import PDFMiner
 from tkinter import filedialog as fd
 import os
+import webscraper
 
 # Open a PDF file
 pdf_document = fitz.open("Business Model.pdf")
@@ -20,6 +22,7 @@ class PDFViewer:
         self.create_menu()
         self.create_frames()
         self.create_widgets()
+
 
     def initialize_variables(self):
         # path for the pdf doc
@@ -41,7 +44,7 @@ class PDFViewer:
         # gives title to the main window
         self.master.title('PDF Viewer')
         # gives dimensions to main window
-        self.master.geometry('2160x1080')
+        self.master.geometry('1360x880')
 
     def create_menu(self):
         # creating the menu
@@ -84,6 +87,7 @@ class PDFViewer:
         self.create_scrollbars()
         self.create_buttons()
         self.create_page_label()
+        self.create_input_text_widget()
 
         # inserting both vertical and horizontal scrollbars to the canvas
         self.output.configure(yscrollcommand=self.scrolly.set, xscrollcommand=self.scrollx.set)
@@ -102,11 +106,16 @@ class PDFViewer:
         self.text_widget.grid(row=0, column=1, padx=5, pady=5, sticky=(N, S, E, W))
         # binding right-click event to show context menu
         self.text_widget.bind("<Button-3>", self.show_context_menu)
-        
+
     def create_output_widget(self):
-    	#creating a Text widget for displaying the output text from the LLM
-    	self.text_widget = Text(self.top_frame, wrap='none', bg='#ECE8F3', width=40, height=20)
-    	self.text_widget.grid(row=0, column=2, padx=5, sticky=(N, S, E, W))
+        # creating a Text widget for displaying the output text from the LLM
+        self.output_text_widget = Text(self.top_frame, wrap='none', bg='#ECE8F3', width=40, height=20)
+        self.output_text_widget.grid(row=0, column=2, padx=5, sticky=(N, S, E, W))
+
+    def create_input_text_widget(self):
+        # creating a Text widget for displaying the output text from the LLM
+        self.input_text_widget = Text(self.top_frame, wrap='none', bg='#ECE8F3', width=20, height=1)
+        self.input_text_widget.grid(row=1, column=2, padx=5, sticky=(N, S, E, W))
 
     def create_context_menu(self):
         # creating a context menu
@@ -129,11 +138,6 @@ class PDFViewer:
         # configuring the vertical scrollbar to the canvas
         self.scrollx.configure(command=self.output.xview)
 
-    def create_buttons(self):
-        self.create_button_icons()
-        self.create_up_button()
-        self.create_down_button()
-
     def create_button_icons(self):
         # loading the button icons
         self.uparrow_icon = PhotoImage(file='uparrow.png')
@@ -142,25 +146,37 @@ class PDFViewer:
         self.uparrow = self.uparrow_icon.subsample(3, 3)
         self.downarrow = self.downarrow_icon.subsample(3, 3)
 
+
     def create_up_button(self):
         # creating an up button with an icon
-        self.upbutton = ttk.Button(self.bottom_frame, image=self.uparrow, command=self.previous_page)
+        self.upbutton = ttk.Button(self.top_frame, image=self.uparrow, command=self.previous_page)
         # adding the button
-        self.upbutton.grid(row=0, column=1, padx=(270, 5), pady=8)
+        self.upbutton.grid(row=3, column=0, padx=(270, 5), pady=8)
 
     def create_down_button(self):
         # creating a down button with an icon
-        self.downbutton = ttk.Button(self.bottom_frame, image=self.downarrow, command=self.next_page)
+        self.downbutton = ttk.Button(self.top_frame, image=self.downarrow, command=self.next_page)
         # adding the button
-        self.downbutton.grid(row=0, column=3, pady=8)
+        self.downbutton.grid(row=3, column=2, pady=8)
+
+    def create_input_button(self):
+        self.input_button = ttk.Button(self.top_frame, text="Generate", command=lambda: self.on_button_click(self.input_text_widget.get("1.0", tk.END)))
+        # Position of button
+        self.input_button.grid(row=1, column=3, pady=10)
+
+    def create_buttons(self):
+        self.create_button_icons()
+        self.create_up_button()
+        self.create_down_button()
+        self.create_input_button()
 
     def create_page_label(self):
         # label for displaying page numbers
-        self.page_label = ttk.Label(self.bottom_frame, text='page')
+        self.page_label = ttk.Label(self.top_frame, text='page')
         # adding the label
-        self.page_label.grid(row=0, column=4, padx=5)
+        self.page_label.grid(row=3, column=1, padx=5)
 
-#External commands
+    # External commands
 
     def open_file(self):
         # open the file dialog
@@ -243,6 +259,7 @@ class PDFViewer:
                 self.current_page -= 1
                 # displaying the previous page
                 self.display_page()
+
     def resize(self, event):
         # Get the width and height of the application window
         window_width = self.master.winfo_width()
@@ -251,12 +268,16 @@ class PDFViewer:
         # Set the width and height of the top_frame based on window size
         self.top_frame.config(width=window_width, height=window_height)
 
-
+    def on_button_click(self, input_text):
+        text = webscraper.insert_text(input_text)
+        self.output_text_widget.delete(1.0, tk.END)  # Clear previous content
+        self.output_text_widget.insert(tk.END, text)
 
 # creating the root window using Tk() class
 root = Tk()
 root.title("PDF Viewer")
 # instantiating/creating object app for class PDFViewer
 app = PDFViewer(root)
+
 # calling the mainloop to run the app infinitely until user closes it
 root.mainloop()

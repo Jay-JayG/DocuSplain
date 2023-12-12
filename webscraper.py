@@ -9,8 +9,6 @@ from selenium.webdriver.support.ui import WebDriverWait
 from fake_useragent import UserAgent
 from selenium.webdriver.support import expected_conditions as EC
 
-prompt = "What are dense neural networks?"
-
 op = webdriver.ChromeOptions()
 op.add_argument(f"user-agent={UserAgent.random}")
 op.add_argument("user-data-dir=./")
@@ -24,8 +22,6 @@ PASSWORD = "123456testtest"
 PATH = "/home/imnitin/code_snippets/tweets_scrapping/chromedriver"
 
 driver.get('https://chat.openai.com/auth/login')
-
-sleep(3)
 
 inputElements = driver.find_elements(By.TAG_NAME, "button")
 inputElements[0].click()
@@ -48,21 +44,20 @@ btn = wait.until(EC.element_to_be_clickable((By.CLASS_NAME, "_button-login-passw
 btn.click()
 sleep(10)
 
-inputElements = driver.find_elements(By.TAG_NAME, "textarea")
+def insert_text(prompt="hello"):
+    prompt = prompt
+    inputElements = driver.find_elements(By.TAG_NAME, "textarea")
 
-i = 0
-# while i<10:
-inputElements[0].send_keys(prompt)
-sleep(2)
-inputElements[0].send_keys(Keys.ENTER)
-sleep(10)
-inputElements = driver.find_elements(By.TAG_NAME, "p")
-sleep(5)
-results = []
-for element in inputElements:
-    results.append(element.text)
-print(results)
-i += 1
-sleep(5)
+    i = 0
+    # while i<10:
+    inputElements[0].send_keys(prompt)
+    sleep(2)
+    inputElements[0].send_keys(Keys.ENTER)
+    sleep(10)
+    inputElements = driver.find_elements(By.TAG_NAME, "p")
+    sleep(5)
+    results = []
+    for element in inputElements:
+        results.append(element.text)
+    return results
 
-input("Press Enter to exit...")
